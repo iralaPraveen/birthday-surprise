@@ -123,7 +123,7 @@ const BirthdayMessage = ({ friendName }) => {
         <div className="birthday-content">
           <div className="wish-text">
             <p>🌟 Wishing you a day filled with happiness and a year filled with joy! 🌟</p>
-            <p>🎈 Hope your special day brings you all that your heart desires! 🎈</p>
+            <p>🎈 Hope your special day brings you all whatever you deserve! 🎈</p>
             <p>🎁 Here's to another year of amazing adventures and memories! 🎁</p>
           </div>
 
