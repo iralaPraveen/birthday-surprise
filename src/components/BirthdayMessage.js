@@ -4,16 +4,33 @@ import './BirthdayMessage.css';
 const BirthdayMessage = ({ friendName }) => {
   const [showMessage, setShowMessage] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [revealedLetters, setRevealedLetters] = useState(0);
 
   useEffect(() => {
     const timer1 = setTimeout(() => setShowMessage(true), 500);
     const timer2 = setTimeout(() => setShowConfetti(true), 1000);
     
+    // Start revealing letters after page loads
+    const startLetterAnimation = setTimeout(() => {
+      const letterTimer = setInterval(() => {
+        setRevealedLetters(prev => {
+          if (prev < friendName.length) {
+            return prev + 1;
+          }
+          clearInterval(letterTimer);
+          return prev;
+        });
+      }, 300); // 300ms delay between each letter
+      
+      return () => clearInterval(letterTimer);
+    }, 1500); // Start after 1.5 seconds
+    
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
+      clearTimeout(startLetterAnimation);
     };
-  }, []);
+  }, [friendName.length]);
 
   const createConfetti = () => {
     const confetti = [];
@@ -33,6 +50,21 @@ const BirthdayMessage = ({ friendName }) => {
     return confetti;
   };
 
+  // Function to calculate circular positions (semi-circle at top)
+  const getCircularPosition = (index, total, radius = 120) => {
+    // Create a semi-circle at the top (from -180° to 0°)
+    const startAngle = -180; // Start from left
+    const endAngle = 0;      // End at right
+    const angleRange = endAngle - startAngle;
+    const angle = startAngle + (index * angleRange) / (total - 1);
+    
+    const radian = (angle * Math.PI) / 180;
+    const x = Math.cos(radian) * radius;
+    const y = Math.sin(radian) * radius;
+    
+    return { x, y, angle };
+  };
+
   return (
     <div className="birthday-message">
       {showConfetti && (
@@ -48,16 +80,34 @@ const BirthdayMessage = ({ friendName }) => {
 
         <div className="name-reveal">
           <h2>You spelled it right!</h2>
-          <div className="friend-name">
-            {friendName.split('').map((letter, index) => (
-              <span 
-                key={index} 
-                className="name-letter"
-                style={{ animationDelay: `${index * 0.2}s` }}
-              >
-                {letter}
-              </span>
-            ))}
+          <div className="circular-name-container">
+            <div className="circular-name">
+              {friendName.split('').map((letter, index) => {
+                const position = getCircularPosition(index, friendName.length);
+                const isRevealed = index < revealedLetters;
+                
+                return (
+                  <div
+                    key={index}
+                    className={`final-circle-letter ${isRevealed ? 'revealed' : 'hidden'}`}
+                    style={{
+                      transform: `translate(${position.x}px, ${position.y}px)`,
+                      animationDelay: `${index * 0.3}s`,
+                      transitionDelay: `${index * 0.2}s`
+                    }}
+                  >
+                    <span className="letter-text">{letter}</span>
+                    <div className="letter-glow"></div>
+                  </div>
+                );
+              })}
+              
+              {/* Center sparkle that appears after all letters */}
+              <div className={`name-center ${revealedLetters >= friendName.length ? 'show-sparkle' : ''}`}>
+                <div className="sparkle">✨</div>
+                <div className="sparkle-ring"></div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -86,7 +136,7 @@ const BirthdayMessage = ({ friendName }) => {
         </div>
 
         <div className="final-message">
-          <p className="signature">Made with ❤️ just for you!</p>
+          <p className="signature">Made with ❤️ just for you by Praveen Irala!</p>
           <button 
             className="celebrate-btn"
             onClick={() => window.location.reload()}

@@ -20,6 +20,15 @@ const LetterPage = ({
 
   const progressPercentage = ((currentPage) / totalPages) * 100;
 
+  // Function to calculate circular positions
+  const getCircularPosition = (index, total, radius = 120) => {
+    const angle = (index * 360) / total;
+    const radian = (angle * Math.PI) / 180;
+    const x = Math.cos(radian) * radius;
+    const y = Math.sin(radian) * radius;
+    return { x, y, angle };
+  };
+
   return (
     <div className="letter-page">
       <div className="background-animation"></div>
@@ -34,22 +43,46 @@ const LetterPage = ({
 
         <div className="page-info">
           <h2>Page {currentPage + 1} of {totalPages}</h2>
-          <p>Building something special for someone special... 🎉</p>
+          <p>Building something special for Dinesh's Birthday🎉</p>
         </div>
 
-        <div className="letters-display">
-          <div className="entered-letters">
-            {enteredLetters.split('').map((letter, index) => (
-              <span key={index} className="letter revealed">{letter}</span>
-            ))}
-          </div>
-          
-          <div className="remaining-letters">
-            {friendName.slice(currentPage).split('').map((letter, index) => (
-              <span key={index} className={`letter ${index === 0 ? 'current' : 'hidden'}`}>
-                {index === 0 ? '?' : '?'}
-              </span>
-            ))}
+        {/* Circular Letter Display */}
+        <div className="letters-circle-container">
+          <div className="letters-circle">
+            {friendName.split('').map((letter, index) => {
+              const position = getCircularPosition(index, friendName.length);
+              const isRevealed = index < enteredLetters.length;
+              const isCurrent = index === currentPage;
+              // Removed the unused 'isHidden' variable
+
+              return (
+                <div
+                  key={index}
+                  className={`circle-letter ${
+                    isRevealed ? 'revealed' : 
+                    isCurrent ? 'current' : 
+                    'hidden'
+                  }`}
+                  style={{
+                    transform: `translate(${position.x}px, ${position.y}px)`,
+                    animationDelay: `${index * 0.1}s`
+                  }}
+                >
+                  <span className="letter-content">
+                    {isRevealed ? letter : (isCurrent ? '?' : '•')}
+                  </span>
+                  {isCurrent && <div className="current-indicator">👆</div>}
+                </div>
+              );
+            })}
+            
+            {/* Center element showing progress */}
+            <div className="circle-center">
+              <div className="center-content">
+                <span className="center-number">{enteredLetters.length}</span>
+                <span className="center-total">/ {friendName.length}</span>
+              </div>
+            </div>
           </div>
         </div>
 
