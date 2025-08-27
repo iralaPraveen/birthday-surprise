@@ -4,7 +4,7 @@ import LetterPage from './components/LetterPage';
 import BirthdayMessage from './components/BirthdayMessage';
 
 function App() {
-  const friendName = "TEJA"; // Change this to your friend's name
+  const friendName = "DINESH"; // Change this to your friend's name
   const letters = friendName.split('');
   
   const [currentPage, setCurrentPage] = useState(0);
